@@ -1,159 +1,107 @@
+import csv
+import os
+import urllib.request
 from django.core.management.base import BaseCommand
-from store.models import (
-    Category, SiteSettings, SocialStats,
-    SOPSection, SOPItem, TermsSection, TermsItem, AboutContent
-)
-
+from django.conf import settings
+from django.utils.text import slugify
+from django.core.files.base import ContentFile
+from store.models import Product, Order, Category
 
 class Command(BaseCommand):
-    help = 'Seed initial data for Asari Florist'
+    help = 'Load data dari file CSV (Products dan Orders) ke database'
 
-    def handle(self, *args, **options):
-        self.stdout.write('🌸 Seeding initial data...')
+    def handle(self, *args, **kwargs):
+        # 1. IMPORT PRODUCT
+        product_csv_path = os.path.join(settings.BASE_DIR, 'products_seed.csv')
+        
+        if os.path.exists(product_csv_path):
+            with open(product_csv_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    # Buat atau ambil objek Category terlebih dahulu
+                    category_name = row['category']
+                    category_obj, created = Category.objects.get_or_create(
+                        name=category_name,
+                        defaults={'slug': slugify(category_name)}
+                    )
 
-        # ── Site Settings ──
-        settings, created = SiteSettings.objects.get_or_create(pk=1)
-        if created:
-            self.stdout.write('  ✓ SiteSettings created')
+                    # Simpan data produknya dulu (tanpa gambar)
+                    product, prod_created = Product.objects.get_or_create(
+                        name=row['name'],
+                        defaults={
+                            'category': category_obj,
+                            'description': row['description'],
+                            'price': row['price'],
+                            'stock': 100,
+                            'is_featured': True
+                        }
+                    )
+
+                    # ==========================================
+                    # PROSES AUTODOWNLOAD GAMBAR DARI URL (INTERNET)
+                    # ==========================================
+                    image_url = row['image_url']
+                    
+                    # Cek apakah kolom di CSV berisi link HTTP/HTTPS
+                    if image_url.startswith('http'):
+                        try:
+                            # Request ke internet pura-pura jadi browser (Mozilla)
+                            req = urllib.request.Request(image_url, headers={'User-Agent': 'Mozilla/5.0'})
+                            with urllib.request.urlopen(req) as response:
+                                # Kasih nama file berdasarkan nama produk, contoh: classic-red-rose-bouquet.jpg
+                                file_name = f"{slugify(row['name'])}.jpg"
+                                
+                                # Simpan otomatis ke folder media/products lu
+                                product.image.save(file_name, ContentFile(response.read()), save=True)
+                                
+                            self.stdout.write(f"  -> Sukses download gambar untuk: {product.name}")
+                        except Exception as e:
+                            self.stdout.write(self.style.WARNING(f"  -> Gagal download gambar {product.name}: {e}"))
+                    elif image_url:
+                        # Kalau di CSV cuma nulis 'products/gambar.jpg' (File lokal)
+                        product.image = image_url
+                        product.save()
+
+            self.stdout.write(self.style.SUCCESS('Berhasil import data Product!'))
         else:
-            self.stdout.write('  – SiteSettings already exists')
+            self.stdout.write(self.style.ERROR('File products_seed.csv tidak ditemukan.'))
 
-        # ── Social Stats ──
-        SocialStats.objects.get_or_create(pk=1, defaults={'total_followers': 2205, 'prev_followers': 2000})
-        self.stdout.write('  ✓ SocialStats ready')
+        # 2. IMPORT ORDER (Sudah termasuk fix error " WIB" sebelumnya)
+        order_csv_path = os.path.join(settings.BASE_DIR, 'orders_seed.csv')
+        
+        if os.path.exists(order_csv_path):
+            with open(order_csv_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    product = Product.objects.filter(name=row['product_name']).first()
+                    
+                    if product:
+                        delivery_val = Order.DELIVERY_SEND if row['delivery_method'] == 'Diantar' else Order.DELIVERY_PICKUP
+                        
+                        status_val = Order.STATUS_IN_PROGRESS
+                        if row['status'] == 'Done': 
+                            status_val = Order.STATUS_DONE
+                        elif row['status'] == 'Cancelled': 
+                            status_val = Order.STATUS_CANCELLED
 
-        # ── Categories ──
-        categories = [
-            ('Flower Bouquet', 'flower-bouquet', 0),
-            ('Hand Bouquet / Wedding Bouquet', 'hand-bouquet', 1),
-            ('Flower Vase', 'flower-vase', 2),
-            ('Custom Order', 'custom-order', 3),
-        ]
-        for name, slug, order in categories:
-            cat, created = Category.objects.get_or_create(
-                slug=slug,
-                defaults={'name': name, 'order': order}
-            )
-            if created:
-                self.stdout.write(f'  ✓ Category: {name}')
+                        clean_time = row['pickup_time'].replace(' WIB', '').replace(' wib', '').strip()
 
-        # ── About Content ──
-        about, created = AboutContent.objects.get_or_create(
-            pk=1,
-            defaults={
-                'content': (
-                    'Asari Bouquet & Flower adalah florist rumahan yang berlokasi di Antapani, '
-                    'Kota Bandung. Kami menghadirkan rangkaian bunga segar dan elegan dengan '
-                    'sentuhan personal untuk setiap momen spesial Anda.\n\n'
-                    'Kami menawarkan berbagai produk bunga mulai dari hand bouquet, wedding bouquet, '
-                    'flower vase, hingga custom order dengan kualitas premium dan layanan yang penuh '
-                    'ketulusan. Setiap pesanan kami kerjakan dengan penuh perhatian dan cinta, '
-                    'karena kami percaya setiap bunga membawa cerita indah tersendiri.'
-                )
-            }
-        )
-        if created:
-            self.stdout.write('  ✓ AboutContent created')
-
-        # ── SOP ──
-        if not SOPSection.objects.exists():
-            sop_data = [
-                ('Order Taking', [
-                    ('Pencatatan detail pesanan menggunakan format', 'copy here',
-                     'https://wa.me/6287863912739'),
-                    ('Pesanan baru akan diproses atau masuk antrean produksi setelah pembayaran awal '
-                     '(DP) atau full payment diterima dan diverifikasi.', '', ''),
-                ]),
-                ('Production', [
-                    ('Pastikan proporsi dan kombinasi warna sesuai dengan request pelanggan.', '', ''),
-                    ('Gunakan teknik spiral untuk buket agar tangkai rapi dan kokoh.', '', ''),
-                    ('Pasang water tube atau kapas basah pada ujung tangkai buket agar bunga tetap '
-                     'segar selama pengiriman.', '', ''),
-                    ('Sebelum di-lapisi kertas wrapping, cek kembali kesegaran bunga dan kesesuaian '
-                     'dengan pesanan.', '', ''),
-                    ('Sisipkan kartu ucapan di tempat yang mudah terlihat namun aman.', '', ''),
-                ]),
-                ('Hand Over', [
-                    ('Foto produk yang sudah jadi sebagai arsip dan untuk dikirimkan kepada pelanggan '
-                     'sebelum dikirim.', '', ''),
-                    ('Kirimkan bukti pengiriman (foto tanda terima) kepada pelanggan.', '', ''),
-                ]),
-            ]
-            for i, (section_title, items) in enumerate(sop_data):
-                section = SOPSection.objects.create(title=section_title, order=i)
-                for j, (content, link_text, link_url) in enumerate(items):
-                    SOPItem.objects.create(
-                        section=section,
-                        content=content,
-                        link_text=link_text,
-                        link_url=link_url,
-                        order=j
-                    )
-            self.stdout.write('  ✓ SOP sections and items created')
-
-        # ── Terms & Conditions ──
-        if not TermsSection.objects.exists():
-            terms_data = [
-                ('Order Rules', [
-                    ('Order Placement',
-                     'Please place your orders at least two days in advance (D-2) or as specified '
-                     'in our Open Order announcements.'),
-                    ('Availability',
-                     'Last-minute orders are only accepted for ready-stock flowers.'),
-                    ('Custom Orders',
-                     'We highly recommend placing custom orders well in advance.'),
-                    ('Purchasing Channels',
-                     'Orders are exclusively processed via Instagram Direct Message (DM) or WhatsApp.'),
-                    ('Location & Operations',
-                     'We are based in Antapani, Bandung City. Please note that we operate exclusively '
-                     'online and do not have a physical storefront.'),
-                    ('Customer Service',
-                     'Kindly expect delayed responses to messages sent outside of business hours or '
-                     'on holidays.'),
-                    ('Updates',
-                     'Please refer to our Instagram Story for the latest information and updates.'),
-                ]),
-                ('Payment', [
-                    ('Order Processing',
-                     'Orders will only be added to our queue upon receipt of full payment or a down '
-                     'payment (DP).'),
-                    ('Down Payment',
-                     'A minimum down payment of 50% is required to confirm your order. The remaining '
-                     'balance must be settled before or on the day of delivery/pickup.'),
-                    ('Payment Methods',
-                     'We accept transfer via bank or e-wallet (BCA, Mandiri, GoPay, OVO, DANA).'),
-                ]),
-                ('Pickup & Delivery Rules', [
-                    ('Schedule Changes',
-                     'If you need to change your pickup day or time, please notify our admin '
-                     'immediately via chat.'),
-                    ('Delivery Area',
-                     'Delivery is available within Bandung City and surrounding areas. Delivery '
-                     'fees depend on the destination.'),
-                    ('Packaging',
-                     'All bouquets are carefully packaged to ensure freshness during delivery.'),
-                ]),
-                ('Disclaimer', [
-                    ('Order Forms',
-                     'Customers are requested to fill out the order form clearly and completely. '
-                     'If there are any revisions, please notify us immediately.'),
-                    ('Natural Products',
-                     'Flowers are natural products. Slight color variations may occur between the '
-                     'product photos and the actual product.'),
-                    ('Cancellation',
-                     'Cancellations after payment confirmation are not accepted. We will do our '
-                     'best to accommodate reasonable requests.'),
-                ]),
-            ]
-            for i, (section_title, items) in enumerate(terms_data):
-                section = TermsSection.objects.create(title=section_title, order=i)
-                for j, (subtitle, content) in enumerate(items):
-                    TermsItem.objects.create(
-                        section=section,
-                        subtitle=subtitle,
-                        content=content,
-                        order=j
-                    )
-            self.stdout.write('  ✓ Terms & Conditions created')
-
-        self.stdout.write(self.style.SUCCESS('\n✅ Seeding complete! Run: python manage.py runserver'))
+                        Order.objects.create(
+                            product=product,
+                            product_name=row['product_name'], 
+                            customer_name=row['customer_name'],
+                            customer_whatsapp=row['whatsapp'], 
+                            quantity=int(row['quantity']),
+                            request_notes=row['request'], 
+                            greeting_card=row['greeting_card'],
+                            paper_bags=int(row['paper_bag']), 
+                            pickup_date=row['pickup_date'],
+                            pickup_time=clean_time,  
+                            delivery_method=delivery_val,
+                            delivery_address=row['address'], 
+                            price=product.price, 
+                            status=status_val
+                        )
+            self.stdout.write(self.style.SUCCESS('Berhasil import data Order!'))
+        else:
+            self.stdout.write(self.style.ERROR('File orders_seed.csv tidak ditemukan.'))

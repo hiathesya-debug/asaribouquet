@@ -115,3 +115,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# 1. Konfigurasi untuk file statis (CSS, JS, gambar UI)
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# 2. Konfigurasi untuk file media (Gambar produk/bouquet yang di-upload)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

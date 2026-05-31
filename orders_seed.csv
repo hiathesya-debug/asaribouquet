@@ -1,0 +1,6 @@
+customer_name,whatsapp,product_name,quantity,request,greeting_card,paper_bag,pickup_date,pickup_time,delivery_method,address,status,total_price
+Budi Santoso,081234567890,Classic Red Rose Bouquet,1,Warna pita tolong disesuaikan jadi hitam,Happy Anniversary Sayang! 5 Tahun bareng-bareng.,1,2026-06-15,12:30 WIB,Diantar,"Jl. Jendral Sudirman Kav 10, Jakarta Pusat",In Progress,152000
+Siti Aminah,089876543210,Sunburst Sunflower Buket,2,-,Happy Graduation! Sukses terus kedepannya.,0,2026-06-16,10:00 WIB,Ambil di Store,-,Done,240000
+Andi Pratama,085611112222,Snack Buket Coklat Silverqueen,1,Tolong diselipin kartu garansi,-,1,2026-06-18,15:00 WIB,Diantar,"Kost Mawar, Jl. Margonda Raya No. 4, Depok",Cancelled,142000
+Rina Gunawan,081399998888,Graduation Buket (Bunga + Topi Toga),1,Wrap luar warna biru muda,Selamat sarjana!!,1,2026-06-20,09:00 WIB,Diantar,"Fasilkom UI, Depok",In Progress,162000
+Jordan Bimo,081122334455,Anniversary Mega Buket (100 Mawar),1,Tolong bunga yang paling fresh,For the one and only.,0,2026-06-25,19:00 WIB,Diantar,RM Payakumbuah Blok M,In Progress,1200000
