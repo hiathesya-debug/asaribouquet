@@ -1,0 +1,171 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ action }} Order – Asari Florist Admin{% endblock %}
+{% block topbar_title %}{{ action }} Order{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <a href="{% url 'orders' %}" class="btn-back">&#8592; Kembali</a>
+    <h1 class="admin-page-title">{{ action }} Order</h1>
+    <div class="dashboard-gradient-line"></div>
+  </div>
+
+  <form method="POST" class="admin-form" id="orderForm">
+    {% csrf_token %}
+
+    <!-- Product -->
+    <div class="form-section">
+      <h3 class="form-section-title">Detail Pesanan</h3>
+
+      <div class="form-group">
+        <label class="form-label">Produk (opsional – isi otomatis nama & harga)</label>
+        {% render_field form.product class="form-control" id="productSelect" %}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Produk *</label>
+          {% render_field form.product_name class="form-control" placeholder="Nama produk" id="productNameField" %}
+          {% if form.product_name.errors %}
+            <span class="form-error">{{ form.product_name.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jumlah *</label>
+          {% render_field form.quantity class="form-control" %}
+          {% if form.quantity.errors %}
+            <span class="form-error">{{ form.quantity.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Harga (Rp) *</label>
+        {% render_field form.price class="form-control" placeholder="285000" id="priceField" %}
+        {% if form.price.errors %}
+          <span class="form-error">{{ form.price.errors|join:", " }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Request / Catatan</label>
+        {% render_field form.request_notes class="form-control form-textarea" rows="3" placeholder="aku mau warna bunganya merah..." %}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Isi Kartu Ucapan</label>
+          {% render_field form.greeting_card class="form-control" placeholder="-" %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jumlah Paper Bag</label>
+          {% render_field form.paper_bags class="form-control" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="form-section">
+      <h3 class="form-section-title">Informasi Pemesan</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Pemesan *</label>
+          {% render_field form.customer_name class="form-control" placeholder="Alan Runner" %}
+          {% if form.customer_name.errors %}
+            <span class="form-error">{{ form.customer_name.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">No WhatsApp *</label>
+          {% render_field form.customer_whatsapp class="form-control" placeholder="08xxxxxxxxxx" %}
+          {% if form.customer_whatsapp.errors %}
+            <span class="form-error">{{ form.customer_whatsapp.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Delivery -->
+    <div class="form-section">
+      <h3 class="form-section-title">Jadwal & Pengiriman</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tanggal Pengambilan *</label>
+          {% render_field form.pickup_date class="form-control" type="date" %}
+          {% if form.pickup_date.errors %}
+            <span class="form-error">{{ form.pickup_date.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jam Pengambilan *</label>
+          {% render_field form.pickup_time class="form-control" type="time" %}
+          {% if form.pickup_time.errors %}
+            <span class="form-error">{{ form.pickup_time.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Metode Penyerahan *</label>
+        {% render_field form.delivery_method class="form-control" %}
+        {% if form.delivery_method.errors %}
+          <span class="form-error">{{ form.delivery_method.errors|join:", " }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Alamat Pengiriman</label>
+        {% render_field form.delivery_address class="form-control form-textarea" rows="2" placeholder="Kosongkan jika ambil di store" %}
+      </div>
+    </div>
+
+    <!-- Status (edit only) -->
+    {% if order %}
+      <div class="form-section">
+        <h3 class="form-section-title">Status</h3>
+        <div class="form-group">
+          <label class="form-label">Status Order</label>
+          {% render_field form.status class="form-control" %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="form-actions">
+      <a href="{% url 'orders' %}" class="btn-cancel-form">Batal</a>
+      <button type="submit" class="btn-save-form">Simpan Order</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-fill product name and price when product is selected
+var productSelect = document.getElementById('productSelect');
+if (productSelect) {
+  // Store product data from Django context via a data API call
+  productSelect.addEventListener('change', function () {
+    var pk = this.value;
+    if (!pk) return;
+    // Fetch product name from option text + data attributes
+    var opt = this.options[this.selectedIndex];
+    var name = opt.text.trim();
+    var nameField = document.getElementById('productNameField');
+    if (nameField) nameField.value = name;
+    // Try to fetch price from API
+    fetch('/admin-panel/products/?pk=' + pk + '&json=1')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){
+        if (data && data.price) {
+          var priceField = document.getElementById('priceField');
+          if (priceField) priceField.value = data.price;
+        }
+      })
+      .catch(function(){});
+  });
+}
+</script>
+{% endblock %}

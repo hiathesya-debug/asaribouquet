@@ -1,0 +1,34 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block title %}Our Products — Asari Bouquet{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="category-hero">
+  <div class="category-hero-placeholder"></div>
+  <div class="category-hero-overlay"></div>
+  <h1>Our Product</h1>
+</section>
+
+<!-- CATEGORIES LIST -->
+<div class="category-list">
+  {% for category in categories %}
+  <a href="{% url 'product_list' category.slug %}" class="category-card">
+    {% if category.image %}
+    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+    {% else %}
+    <div class="category-card-placeholder"></div>
+    {% endif %}
+    <div class="category-card-overlay"></div>
+    <div class="category-card-title">
+      {{ category.name }}
+    </div>
+  </a>
+  {% empty %}
+  <p style="text-align:center;color:#888;padding:40px 0;">Belum ada kategori produk.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

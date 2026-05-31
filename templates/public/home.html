@@ -1,0 +1,73 @@
+{% extends 'public/base.html' %}
+{% load static store_filters %}
+
+{% block title %}Asari Bouquet & Flower — Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  {% if about and about.hero_image %}
+  <img class="hero-img" src="{{ about.hero_image.url }}" alt="Asari Bouquet">
+  {% else %}
+  <div class="hero-img hero-img-placeholder"></div>
+  {% endif %}
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">Asari<br>Bouquet & Flower</h1>
+  </div>
+</section>
+
+<!-- ABOUT SECTION (below hero) -->
+<section style="padding:20px 20px 0; text-align:justify;">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:#C9A456;text-align:center;margin-bottom:10px;">Asari<br>Bouquet & Flower</h2>
+  {% if about %}
+  <p style="font-size:0.88rem;line-height:1.8;color:#444;text-align:justify;">{{ about.content|truncatewords:80 }}</p>
+  {% else %}
+  <p style="font-size:0.88rem;line-height:1.8;color:#444;">A home-based florist creating fresh and elegant floral arrangements with a personal touch for every special moment.</p>
+  {% endif %}
+</section>
+
+<!-- PRODUCT SECTIONS BY CATEGORY -->
+{% for section in cat_sections %}
+<section class="section">
+  <h2 class="section-title">{{ section.category.name }}</h2>
+  <div class="product-grid">
+    {% for product in section.products %}
+    <a href="{% url 'product_detail' product.pk %}" class="product-card" style="text-decoration:none;color:inherit;">
+      <div class="product-img-wrap">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+        <div class="product-placeholder" style="position:absolute;inset:0;">🌸</div>
+        {% endif %}
+        {% if product.is_out_of_stock %}
+        <div class="out-of-stock-overlay">Out of Stock.</div>
+        {% endif %}
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price|rupiah }}</p>
+        {% if not product.is_out_of_stock %}
+        <span class="btn-order">
+          Order
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M7 7l10 5-10 5V7z" fill="white"/>
+          </svg>
+        </span>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="view-all-wrap">
+    <a href="{% url 'product_list' section.category.slug %}" class="btn-view-all">VIEW ALL PRODUCTS</a>
+  </div>
+</section>
+{% empty %}
+<section class="section">
+  <p style="text-align:center;color:#888;padding:40px 0;">Belum ada produk. <a href="{% url 'admin_login' %}" style="color:#C9A456;">Admin login</a> untuk menambahkan.</p>
+</section>
+{% endfor %}
+
+{% endblock %}

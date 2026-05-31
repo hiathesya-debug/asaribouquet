@@ -1,0 +1,67 @@
+{% extends 'public/base.html' %}
+{% load static store_filters %}
+
+{% block title %}Pencarian: "{{ query }}" — Asari Bouquet{% endblock %}
+
+{% block content %}
+
+<!-- SEARCH BAR (visible on this page) -->
+<div style="padding: 12px 16px; background: #f9f7f3; border-bottom: 1px solid #E8E0D0;">
+  <form method="GET" action="{% url 'product_search' %}">
+    <div class="search-bar-wrap" style="padding:0;">
+      <input type="text" name="q" id="searchInput" placeholder="Cari produk..." value="{{ query }}" autocomplete="off">
+      <button type="submit">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <circle cx="9" cy="9" r="6.5" stroke="white" stroke-width="2"/>
+          <path d="M14 14L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- RESULTS HEADER -->
+{% if query %}
+<div class="results-header">
+  <span>Results for <span class="query">{{ query }}</span></span>
+  <span class="count">{{ total }} Results</span>
+</div>
+{% endif %}
+
+<!-- PRODUCT GRID -->
+<div style="padding: 0 16px 32px;">
+  <div class="product-grid">
+    {% for product in products %}
+    <a href="{% url 'product_detail' product.pk %}" class="product-card" style="text-decoration:none;color:inherit;">
+      <div class="product-img-wrap">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+        <div class="product-placeholder" style="position:absolute;inset:0;">🌸</div>
+        {% endif %}
+        {% if product.is_out_of_stock %}
+        <div class="out-of-stock-overlay">Out of Stock.</div>
+        {% endif %}
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price|rupiah }}</p>
+        {% if not product.is_out_of_stock %}
+        <span class="btn-order">
+          Order
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M7 7l10 5-10 5V7z" fill="white"/>
+          </svg>
+        </span>
+        {% endif %}
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#888;">
+      {% if query %}Tidak ada produk untuk "{{ query }}".{% else %}Masukkan kata kunci pencarian.{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

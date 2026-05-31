@@ -1,0 +1,188 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+{% load store_filters %}
+
+{% block title %}Dashboard – Asari Florist Admin{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+
+  <!-- Header Row -->
+  <div class="dashboard-header-row">
+    <div>
+      <h1 class="admin-page-title">Dashboard</h1>
+      <div class="dashboard-gradient-line"></div>
+    </div>
+    <span class="dashboard-period-label">Period: <strong>{{ month_name }}</strong></span>
+  </div>
+
+  <!-- Period Selector -->
+  <form method="GET" class="period-form">
+    <select name="month" class="period-select" onchange="this.form.submit()">
+      {% for num, name in all_months %}
+        <option value="{{ num }}" {% if num == period_month %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <select name="year" class="period-select" onchange="this.form.submit()">
+      {% for yr in "2024 2025 2026"|split:" " %}
+        <option value="{{ yr }}" {% if yr|add:"0" == period_year %}selected{% endif %}>{{ yr }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <!-- Followers Card -->
+    <div class="stat-card">
+      <p class="stat-label">Total Followers</p>
+      <p class="stat-value">{{ social_stats.total_followers|intcomma }}</p>
+      {% with pct=social_stats.followers_change_pct %}
+        {% if pct >= 0 %}
+          <span class="stat-badge badge-up">{{ pct }}% &#8593;</span>
+        {% else %}
+          <span class="stat-badge badge-down">{{ pct|abs_val }}% &#8595;</span>
+        {% endif %}
+      {% endwith %}
+      <form method="POST" action="{% url 'update_followers' %}" class="update-followers-form">
+        {% csrf_token %}
+        <input type="number" name="total_followers" placeholder="Update followers"
+               class="followers-input" value="{{ social_stats.total_followers }}">
+        <button type="submit" class="followers-save-btn">Simpan</button>
+      </form>
+    </div>
+
+    <!-- Orders Card -->
+    <div class="stat-card">
+      <p class="stat-label">Total Orders</p>
+      <p class="stat-value">{{ total_orders }}</p>
+      {% if order_change_pct >= 0 %}
+        <span class="stat-badge badge-up">{{ order_change_pct }}% &#8593;</span>
+      {% else %}
+        <span class="stat-badge badge-down">{{ order_change_pct|abs_val }}% &#8595;</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sales Chart -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <h2 class="chart-title">Sales Statistics</h2>
+      <p class="chart-subtitle" id="chartPeriodLabel">{{ month_name }}</p>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="salesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent Reviews -->
+  <div class="reviews-section">
+    {% for review in recent_reviews %}
+      <div class="review-card">
+        <div class="review-avatar-wrap">
+          {% if review.avatar and not review.is_anonymous %}
+            <img src="{{ review.avatar.url }}" alt="{{ review.display_name }}" class="review-avatar">
+          {% else %}
+            <div class="review-avatar-placeholder">{{ review.display_name|first|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="review-content">
+          <p class="review-name">{{ review.display_name }}</p>
+          <p class="review-time">{{ review.get_time_ago }}</p>
+          <p class="review-text">{{ review.content }}</p>
+        </div>
+      </div>
+    {% empty %}
+      <p class="no-data">Belum ada ulasan.</p>
+    {% endfor %}
+
+    <a href="{% url 'all_reviews' %}" class="btn-view-all-reviews">VIEW ALL REVIEWS</a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var periodMonth = {{ period_month }};
+  var periodYear = {{ period_year }};
+  var salesUrl = '{% url "get_sales_data" %}';
+
+  var ctx = document.getElementById('salesChart');
+  if (!ctx) return;
+
+  var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Pendapatan',
+        data: [],
+        borderColor: '#C9A456',
+        backgroundColor: 'rgba(201,164,86,0.18)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.45,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'Nunito', size: 11 }, color: '#999' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: {
+            font: { family: 'Nunito', size: 11 }, color: '#999',
+            callback: function(v) {
+              if (v >= 1000000) return (v/1000000).toFixed(0) + 'jt';
+              if (v >= 1000) return (v/1000).toFixed(0) + 'k';
+              return v;
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ' Rp ' + ctx.parsed.y.toLocaleString('id-ID');
+            }
+          }
+        }
+      }
+    }
+  });
+
+  function loadChart(month, year) {
+    fetch(salesUrl + '?month=' + month + '&year=' + year)
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        chart.data.labels = d.labels;
+        chart.data.datasets[0].data = d.data;
+        chart.update();
+      });
+  }
+
+  loadChart(periodMonth, periodYear);
+
+  // If period selects change, reload chart
+  document.querySelectorAll('.period-select').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      var m = document.querySelector('[name="month"]').value;
+      var y = document.querySelector('[name="year"]').value;
+      loadChart(m, y);
+    });
+  });
+})();
+</script>
+{% endblock %}

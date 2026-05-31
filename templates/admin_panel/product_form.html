@@ -1,0 +1,213 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ action }} Produk – Asari Florist Admin{% endblock %}
+{% block topbar_title %}{{ action }} Produk{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <a href="{% url 'management_product' %}" class="btn-back">&#8592; Kembali</a>
+    <h1 class="admin-page-title">{{ action }} Produk</h1>
+    <div class="dashboard-gradient-line"></div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" class="admin-form" id="productForm">
+    {% csrf_token %}
+
+    <!-- Basic Info -->
+    <div class="form-section">
+      <h3 class="form-section-title">Informasi Dasar</h3>
+
+      <div class="form-group">
+        <label class="form-label">Nama Produk *</label>
+        {% render_field form.name class="form-control" placeholder="Nama produk" %}
+        {% if form.name.errors %}
+          <span class="form-error">{{ form.name.errors|join:", " }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori *</label>
+          {% render_field form.category class="form-control" %}
+          {% if form.category.errors %}
+            <span class="form-error">{{ form.category.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Harga (Rp) *</label>
+          {% render_field form.price class="form-control" placeholder="300000" %}
+          {% if form.price.errors %}
+            <span class="form-error">{{ form.price.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stok *</label>
+          {% render_field form.stock class="form-control" placeholder="0" %}
+          {% if form.stock.errors %}
+            <span class="form-error">{{ form.stock.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group form-group-check">
+          <label class="form-label">&nbsp;</label>
+          <label class="checkbox-label">
+            {% render_field form.is_featured %}
+            Produk Unggulan (Featured)
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Deskripsi</label>
+        {% render_field form.description class="form-control form-textarea" rows="3" placeholder="Deskripsi singkat produk..." %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Foto Produk</label>
+        {% if product and product.image %}
+          <div class="current-image-preview">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="current-img-thumb">
+            <span class="current-img-label">Foto saat ini</span>
+          </div>
+        {% endif %}
+        {% render_field form.image class="form-control-file" %}
+        {% if form.image.errors %}
+          <span class="form-error">{{ form.image.errors|join:", " }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <h3 class="form-section-title">Detail Produk</h3>
+        <button type="button" class="btn-add-row" id="addDetailRow">+ Tambah Detail</button>
+      </div>
+      <p class="form-hint">Contoh: Main Flowers → Three stems of hot pink lilies...</p>
+
+      <div id="detailRows">
+        {% if product and existing_details %}
+          {% for detail in existing_details %}
+            <div class="detail-row" data-row>
+              <div class="form-row">
+                <div class="form-group">
+                  <input type="text" name="detail_{{ forloop.counter0 }}-label"
+                         class="form-control" placeholder="Label (mis: Main Flowers)"
+                         value="{{ detail.label }}">
+                </div>
+                <div class="form-group">
+                  <textarea name="detail_{{ forloop.counter0 }}-content"
+                            class="form-control form-textarea" rows="2"
+                            placeholder="Deskripsi detail...">{{ detail.content }}</textarea>
+                </div>
+                <button type="button" class="btn-remove-row" data-remove-row>&#10005;</button>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="detail-row" data-row>
+            <div class="form-row">
+              <div class="form-group">
+                <input type="text" name="detail_0-label" class="form-control" placeholder="Label (mis: Main Flowers)">
+              </div>
+              <div class="form-group">
+                <textarea name="detail_0-content" class="form-control form-textarea" rows="2" placeholder="Deskripsi detail..."></textarea>
+              </div>
+              <button type="button" class="btn-remove-row" data-remove-row>&#10005;</button>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Perfect For -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <h3 class="form-section-title">Perfect For</h3>
+        <button type="button" class="btn-add-row" id="addPfRow">+ Tambah Item</button>
+      </div>
+      <p class="form-hint">Contoh: Graduation gifts, Birthday surprises, dll.</p>
+
+      <div id="pfRows">
+        {% if product and existing_pf %}
+          {% for pf in existing_pf %}
+            <div class="pf-row" data-pf-row>
+              <div class="form-row form-row-pf">
+                <div class="form-group">
+                  <input type="text" name="pf_{{ forloop.counter0 }}-item"
+                         class="form-control" placeholder="Item perfect for..."
+                         value="{{ pf.item }}">
+                </div>
+                <button type="button" class="btn-remove-row" data-remove-pf>&#10005;</button>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="pf-row" data-pf-row>
+            <div class="form-row form-row-pf">
+              <div class="form-group">
+                <input type="text" name="pf_0-item" class="form-control" placeholder="Item perfect for...">
+              </div>
+              <button type="button" class="btn-remove-row" data-remove-pf>&#10005;</button>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-actions">
+      <a href="{% url 'management_product' %}" class="btn-cancel-form">Batal</a>
+      <button type="submit" class="btn-save-form">Simpan Produk</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Dynamic Detail Rows ──
+var detailCount = document.querySelectorAll('[data-row]').length;
+document.getElementById('addDetailRow').addEventListener('click', function () {
+  var wrap = document.getElementById('detailRows');
+  var div = document.createElement('div');
+  div.className = 'detail-row';
+  div.setAttribute('data-row', '');
+  div.innerHTML = '<div class="form-row">' +
+    '<div class="form-group"><input type="text" name="detail_' + detailCount + '-label" class="form-control" placeholder="Label"></div>' +
+    '<div class="form-group"><textarea name="detail_' + detailCount + '-content" class="form-control form-textarea" rows="2" placeholder="Deskripsi..."></textarea></div>' +
+    '<button type="button" class="btn-remove-row" data-remove-row>&#10005;</button>' +
+    '</div>';
+  wrap.appendChild(div);
+  div.querySelector('[data-remove-row]').addEventListener('click', function () { div.remove(); });
+  detailCount++;
+});
+document.querySelectorAll('[data-remove-row]').forEach(function (btn) {
+  btn.addEventListener('click', function () { btn.closest('[data-row]').remove(); });
+});
+
+// ── Dynamic PF Rows ──
+var pfCount = document.querySelectorAll('[data-pf-row]').length;
+document.getElementById('addPfRow').addEventListener('click', function () {
+  var wrap = document.getElementById('pfRows');
+  var div = document.createElement('div');
+  div.className = 'pf-row';
+  div.setAttribute('data-pf-row', '');
+  div.innerHTML = '<div class="form-row form-row-pf">' +
+    '<div class="form-group"><input type="text" name="pf_' + pfCount + '-item" class="form-control" placeholder="Item perfect for..."></div>' +
+    '<button type="button" class="btn-remove-row" data-remove-pf>&#10005;</button>' +
+    '</div>';
+  wrap.appendChild(div);
+  div.querySelector('[data-remove-pf]').addEventListener('click', function () { div.remove(); });
+  pfCount++;
+});
+document.querySelectorAll('[data-remove-pf]').forEach(function (btn) {
+  btn.addEventListener('click', function () { btn.closest('[data-pf-row]').remove(); });
+});
+</script>
+{% endblock %}

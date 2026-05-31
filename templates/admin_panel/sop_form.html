@@ -1,0 +1,43 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ title }} – Asari Florist Admin{% endblock %}
+{% block topbar_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <a href="{% url 'sop' %}" class="btn-back">&#8592; Kembali ke SOP</a>
+    <h1 class="admin-page-title">{{ title }}</h1>
+    <div class="dashboard-gradient-line"></div>
+  </div>
+
+  <form method="POST" class="admin-form">
+    {% csrf_token %}
+    <div class="form-section">
+      {% for field in form %}
+        <div class="form-group">
+          <label class="form-label">{{ field.label }}</label>
+          {% if field.field.widget.input_type == 'textarea' or field.name == 'content' %}
+            {% render_field field class="form-control form-textarea" rows="3" %}
+          {% else %}
+            {% render_field field class="form-control" %}
+          {% endif %}
+          {% if field.errors %}
+            <span class="form-error">{{ field.errors|join:", " }}</span>
+          {% endif %}
+          {% if field.help_text %}
+            <span class="form-hint">{{ field.help_text }}</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'sop' %}" class="btn-cancel-form">Batal</a>
+      <button type="submit" class="btn-save-form">Simpan</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

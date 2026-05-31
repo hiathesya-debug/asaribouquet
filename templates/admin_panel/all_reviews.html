@@ -1,0 +1,49 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}All Review – Asari Florist Admin{% endblock %}
+{% block topbar_title %}All Review{% endblock %}
+
+{% block content %}
+<div class="all-reviews-page">
+  <h1 class="admin-page-title-italic"><em>All</em> Review</h1>
+  <div class="dashboard-gradient-line"></div>
+
+  <!-- Month Filter Tabs -->
+  <div class="month-filter-tabs">
+    {% for num, name in months %}
+      <a href="?month={{ num }}&year={{ selected_year }}"
+         class="month-tab {% if selected_month == num %}active{% endif %}">
+        {{ name }}
+      </a>
+    {% endfor %}
+    {% if selected_month %}
+      <a href="?" class="month-tab month-tab-clear">All</a>
+    {% endif %}
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list">
+    {% for review in reviews %}
+      <div class="review-card review-card-full">
+        <div class="review-avatar-wrap">
+          {% if review.avatar and not review.is_anonymous %}
+            <img src="{{ review.avatar.url }}" alt="{{ review.display_name }}" class="review-avatar">
+          {% else %}
+            <div class="review-avatar-placeholder">{{ review.display_name|first|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="review-content">
+          <p class="review-name">{{ review.display_name }}</p>
+          <p class="review-time">{{ review.get_time_ago }}</p>
+          <p class="review-text">{{ review.content }}</p>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <p>Belum ada ulasan{% if selected_month %} untuk bulan ini{% endif %}.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

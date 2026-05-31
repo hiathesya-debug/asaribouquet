@@ -1,0 +1,209 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+{% load store_filters %}
+
+{% block title %}Orders – Asari Florist Admin{% endblock %}
+{% block topbar_title %}Orders{% endblock %}
+
+{% block content %}
+<div class="orders-page">
+  <h1 class="admin-page-title">Orders</h1>
+  <div class="dashboard-gradient-line"></div>
+
+  <!-- Add New Order -->
+  <a href="{% url 'order_add' %}" class="btn-add-dashed btn-add-dashed-pink">
+    Add New Orders <span class="btn-add-icon">+</span>
+  </a>
+
+  <!-- Status Tabs -->
+  <div class="order-status-tabs">
+    <a href="?status=in_progress"
+       class="order-tab {% if status_filter == 'in_progress' %}active{% endif %}">
+      In Progress
+      {% if in_progress_count %}<span class="tab-badge">{{ in_progress_count }}</span>{% endif %}
+    </a>
+    <a href="?status=done"
+       class="order-tab {% if status_filter == 'done' %}active{% endif %}">
+      Done
+      {% if done_count %}<span class="tab-badge tab-badge-done">{{ done_count }}</span>{% endif %}
+    </a>
+    <a href="?status=cancelled"
+       class="order-tab {% if status_filter == 'cancelled' %}active{% endif %}">
+      Cancelled
+      {% if cancelled_count %}<span class="tab-badge tab-badge-cancelled">{{ cancelled_count }}</span>{% endif %}
+    </a>
+  </div>
+
+  <!-- Orders List -->
+  <div class="orders-list" id="ordersList">
+    {% for order in orders %}
+      <div class="order-card" id="orderCard{{ order.pk }}" data-order-id="{{ order.pk }}">
+        <!-- Due Date badge -->
+        {% with due=order.get_time_until_due %}
+          {% if due %}
+            <span class="order-due-badge {% if due == 'Overdue' %}badge-overdue{% endif %}">
+              Due Date: {{ due }}
+            </span>
+          {% endif %}
+        {% endwith %}
+
+        <div class="order-card-body">
+          <!-- Product image -->
+          <div class="order-img-wrap">
+            {% if order.product and order.product.image %}
+              <img src="{{ order.product.image.url }}" alt="{{ order.product_name }}" class="order-img">
+            {% else %}
+              <div class="order-img-placeholder">🌸</div>
+            {% endif %}
+          </div>
+
+          <!-- Info -->
+          <div class="order-info">
+            <h3 class="order-product-name">{{ order.product_name }}</h3>
+            <p class="order-customer">Order by: <strong>{{ order.customer_name }}</strong></p>
+            <div class="order-notes-wrap">
+              <p class="order-notes-label">Notes:</p>
+              <p class="order-notes">
+                {% if order.request_notes %}{{ order.request_notes }}{% else %}–{% endif %}
+              </p>
+            </div>
+            {% if order.greeting_card and order.greeting_card != '-' %}
+              <p class="order-greeting">Kartu: {{ order.greeting_card }}</p>
+            {% endif %}
+            {% if order.paper_bags %}
+              <p class="order-bags">Paper bag: {{ order.paper_bags }} pcs</p>
+            {% endif %}
+
+            <!-- Price (editable) -->
+            <div class="order-price-wrap">
+              <span class="order-price" id="priceDisplay{{ order.pk }}">
+                Rp{{ order.total_price|rupiah }}
+              </span>
+              <button type="button" class="btn-edit-price"
+                      onclick="togglePriceEdit({{ order.pk }})"
+                      id="editPriceBtn{{ order.pk }}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <form class="price-edit-form" id="priceForm{{ order.pk }}"
+                    style="display:none"
+                    onsubmit="savePriceAjax(event, {{ order.pk }})">
+                {% csrf_token %}
+                <input type="number" name="price" value="{{ order.price }}"
+                       class="price-input" step="1000" min="0">
+                <button type="submit" class="btn-save-price">✓</button>
+                <button type="button" class="btn-cancel-price"
+                        onclick="togglePriceEdit({{ order.pk }})">✕</button>
+              </form>
+            </div>
+
+            <!-- Pickup info -->
+            <p class="order-pickup-info">
+              📅 {{ order.pickup_date|date:"D, d M Y" }} — {{ order.pickup_time|time:"H.i" }} WIB
+              | {{ order.get_delivery_method_display }}
+            </p>
+            {% if order.delivery_address %}
+              <p class="order-address">📍 {{ order.delivery_address }}</p>
+            {% endif %}
+
+            <!-- Actions -->
+            {% if status_filter == 'in_progress' %}
+              <div class="order-actions">
+                <button type="button" class="btn-order-done"
+                        onclick="updateOrderStatus({{ order.pk }}, 'done')">Done</button>
+                <button type="button" class="btn-order-cancel"
+                        onclick="updateOrderStatus({{ order.pk }}, 'cancelled')">Cancel</button>
+                <a href="{% url 'order_edit' order.pk %}" class="btn-order-edit">Edit</a>
+              </div>
+            {% elif status_filter == 'done' %}
+              <div class="order-actions">
+                <button type="button" class="btn-order-revert"
+                        onclick="updateOrderStatus({{ order.pk }}, 'in_progress')">In Progress</button>
+                <button class="btn-admin-delete"
+                        data-delete-url="{% url 'order_delete' order.pk %}">Hapus</button>
+              </div>
+            {% else %}
+              <div class="order-actions">
+                <button type="button" class="btn-order-revert"
+                        onclick="updateOrderStatus({{ order.pk }}, 'in_progress')">Kembalikan</button>
+                <button class="btn-admin-delete"
+                        data-delete-url="{% url 'order_delete' order.pk %}">Hapus</button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <p>Tidak ada order dengan status ini.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var csrfToken = '{{ csrf_token }}';
+
+function updateOrderStatus(orderId, newStatus) {
+  fetch('/admin-panel/orders/' + orderId + '/status/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: 'status=' + encodeURIComponent(newStatus),
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (data.success) {
+      var card = document.getElementById('orderCard' + orderId);
+      if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        card.style.transition = 'all 0.3s ease';
+        setTimeout(function () { card.remove(); }, 300);
+      }
+    }
+  })
+  .catch(function (e) { console.error(e); });
+}
+
+function togglePriceEdit(orderId) {
+  var display = document.getElementById('priceDisplay' + orderId);
+  var form = document.getElementById('priceForm' + orderId);
+  if (!display || !form) return;
+  var isHidden = form.style.display === 'none';
+  display.style.display = isHidden ? 'none' : '';
+  form.style.display = isHidden ? 'flex' : 'none';
+}
+
+function savePriceAjax(e, orderId) {
+  e.preventDefault();
+  var form = document.getElementById('priceForm' + orderId);
+  var priceVal = form.querySelector('[name="price"]').value;
+  fetch('/admin-panel/orders/' + orderId + '/price/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: 'price=' + encodeURIComponent(priceVal),
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (data.success) {
+      var display = document.getElementById('priceDisplay' + orderId);
+      if (display) display.textContent = 'Rp' + parseFloat(priceVal).toLocaleString('id-ID');
+      togglePriceEdit(orderId);
+    }
+  })
+  .catch(function (e) { console.error(e); });
+}
+</script>
+{% endblock %}

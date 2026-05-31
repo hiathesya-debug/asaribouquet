@@ -1,0 +1,61 @@
+{% extends 'public/base.html' %}
+{% load static store_filters %}
+
+{% block title %}{{ category.name }} — Asari Bouquet{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="category-hero" style="height:160px;">
+  {% if category.image %}
+  <img src="{{ category.image.url }}" alt="{{ category.name }}">
+  {% else %}
+  <div class="category-card-placeholder"></div>
+  {% endif %}
+  <div class="category-hero-overlay"></div>
+  <h1 style="font-size:1.8rem;">{{ category.name }}</h1>
+</section>
+
+<!-- RESULTS HEADER -->
+<div class="results-header">
+  <span>Produk dalam <span class="query">{{ category.name }}</span></span>
+  <span class="count">{{ total }} Produk</span>
+</div>
+
+<!-- PRODUCT GRID -->
+<div style="padding: 0 16px 32px;">
+  <div class="product-grid">
+    {% for product in products %}
+    <a href="{% url 'product_detail' product.pk %}" class="product-card" style="text-decoration:none;color:inherit;">
+      <div class="product-img-wrap">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+        <div class="product-placeholder" style="position:absolute;inset:0;">🌸</div>
+        {% endif %}
+        {% if product.is_out_of_stock %}
+        <div class="out-of-stock-overlay">Out of Stock.</div>
+        {% endif %}
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price|rupiah }}</p>
+        {% if not product.is_out_of_stock %}
+        <span class="btn-order">
+          Order
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M7 7l10 5-10 5V7z" fill="white"/>
+          </svg>
+        </span>
+        {% endif %}
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#888;">
+      Belum ada produk dalam kategori ini.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

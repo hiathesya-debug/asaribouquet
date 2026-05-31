@@ -1,0 +1,66 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}SOP – Asari Florist Admin{% endblock %}
+{% block topbar_title %}Standard Operating Procedure{% endblock %}
+
+{% block content %}
+<div class="sop-page">
+  <h1 class="admin-page-title">Standard Operating<br>Procedure</h1>
+  <div class="dashboard-gradient-line"></div>
+
+  <!-- Add actions -->
+  <div class="sop-actions-row">
+    <a href="{% url 'sop_section_add' %}" class="btn-add-dashed">
+      + Tambah Seksi
+    </a>
+    <a href="{% url 'sop_item_add' %}" class="btn-add-dashed" style="margin-left:12px;">
+      + Tambah Item
+    </a>
+  </div>
+
+  <!-- SOP Content -->
+  <div class="sop-card">
+    {% for section in sections %}
+      <div class="sop-section">
+        <h2 class="sop-section-title">{{ section.title }}</h2>
+        <ol class="sop-items">
+          {% for item in section.items.all %}
+            <li class="sop-item">
+              <div class="sop-item-content">
+                {{ item.content }}
+                {% if item.link_url and item.link_text %}
+                  <a href="{{ item.link_url }}" class="sop-link" target="_blank" rel="noopener">{{ item.link_text }}</a>
+                {% endif %}
+              </div>
+              <div class="sop-item-actions">
+                <a href="{% url 'sop_item_edit' item.pk %}" class="btn-sop-edit" title="Edit">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </a>
+                <button class="btn-sop-delete btn-admin-delete"
+                        data-delete-url="{% url 'sop_item_delete' item.pk %}"
+                        title="Hapus">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                  </svg>
+                </button>
+              </div>
+            </li>
+          {% empty %}
+            <li class="sop-item-empty">Belum ada item dalam seksi ini.</li>
+          {% endfor %}
+        </ol>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <p>Belum ada SOP. <a href="{% url 'sop_section_add' %}">Tambah seksi pertama</a>.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

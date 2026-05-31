@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – Asari Florist Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0eeea;
+      padding: 24px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+    }
+    .login-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .login-logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #C9A456;
+      margin-top: 12px;
+    }
+    .login-subtitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+    .login-form {
+      margin-top: 8px;
+    }
+    .login-field {
+      margin-bottom: 20px;
+    }
+    .login-label {
+      display: block;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e0dbd3;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #faf9f7;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: #C9A456;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: #C9A456;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: #b8923f; }
+    .login-error {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Nunito', sans-serif;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="48" height="48" viewBox="0 0 50 50" fill="none">
+          <path d="M25 5 C20 5 15 10 15 15 C15 20 20 22 25 22 C30 22 35 20 35 15 C35 10 30 5 25 5Z" fill="#C9A456" opacity="0.8"/>
+          <path d="M10 18 C5 18 3 23 5 27 C7 31 13 31 17 28 C21 25 20 20 17 18 C15 17 12 17 10 18Z" fill="#C9A456" opacity="0.8"/>
+          <path d="M40 18 C45 18 47 23 45 27 C43 31 37 31 33 28 C29 25 30 20 33 18 C35 17 38 17 40 18Z" fill="#C9A456" opacity="0.8"/>
+          <path d="M15 30 C10 32 9 38 12 41 C15 44 21 43 24 39 C27 35 25 30 22 29Z" fill="#C9A456" opacity="0.8"/>
+          <path d="M35 30 C40 32 41 38 38 41 C35 44 29 43 26 39 C23 35 25 30 28 29Z" fill="#C9A456" opacity="0.8"/>
+          <circle cx="25" cy="24" r="7" fill="#C9A456"/>
+        </svg>
+        <span class="login-logo-text">Asari Florist</span>
+        <span class="login-subtitle">Admin Panel</span>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="login-error">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST" class="login-form">
+        {% csrf_token %}
+        <div class="login-field">
+          <label class="login-label" for="username">Username</label>
+          <input type="text" id="username" name="username" class="login-input" placeholder="Masukkan username" required autofocus>
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="password">Password</label>
+          <input type="password" id="password" name="password" class="login-input" placeholder="Masukkan password" required>
+        </div>
+        <button type="submit" class="login-btn">Masuk</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
