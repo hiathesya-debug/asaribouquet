@@ -6,30 +6,29 @@
 {% block topbar_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-page">
-
-  <!-- Header Row -->
-  <div class="dashboard-header-row">
+<div class="dashboard-header-row" style="align-items: flex-end;">
     <div>
       <h1 class="admin-page-title">Dashboard</h1>
-      <div class="dashboard-gradient-line"></div>
+      <div class="dashboard-gradient-line" style="margin-bottom: 0;"></div>
     </div>
-    <span class="dashboard-period-label">Period: <strong>{{ month_name }}</strong></span>
+    
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-bottom: 8px;">
+      <span class="dashboard-period-label" style="padding-top:0;">Period: <strong>{{ month_name }}</strong></span>
+      
+      <form method="GET" class="period-form" style="margin-bottom: 0;">
+        <select name="month" class="period-select" onchange="this.form.submit()">
+          {% for num, name in all_months %}
+            <option value="{{ num }}" {% if num == period_month %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+        <select name="year" class="period-select" onchange="this.form.submit()">
+          {% for yr in "2024 2025 2026"|split:" " %}
+            <option value="{{ yr }}" {% if yr|add:"0" == period_year %}selected{% endif %}>{{ yr }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
   </div>
-
-  <!-- Period Selector -->
-  <form method="GET" class="period-form">
-    <select name="month" class="period-select" onchange="this.form.submit()">
-      {% for num, name in all_months %}
-        <option value="{{ num }}" {% if num == period_month %}selected{% endif %}>{{ name }}</option>
-      {% endfor %}
-    </select>
-    <select name="year" class="period-select" onchange="this.form.submit()">
-      {% for yr in "2024 2025 2026"|split:" " %}
-        <option value="{{ yr }}" {% if yr|add:"0" == period_year %}selected{% endif %}>{{ yr }}</option>
-      {% endfor %}
-    </select>
-  </form>
 
   <!-- Stats Cards -->
   <div class="stats-grid">
