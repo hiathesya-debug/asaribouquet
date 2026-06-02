@@ -1,7 +1,7 @@
 {% extends 'public/base.html' %}
 {% load static %}
 
-{% block title %}Our Products — Asari Bouquet{% endblock %}
+{% block title %}Our Products - Asari Bouquet{% endblock %}
 
 {% block content %}
 
@@ -27,8 +27,9 @@
     </div>
   </a>
   {% empty %}
-  <p style="text-align:center;color:#888;padding:40px 0;">Belum ada kategori produk.</p>
+  <p class="public-empty-state">Belum ada kategori produk.</p>
   {% endfor %}
 </div>
 
 {% endblock %}
+

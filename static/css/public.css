@@ -1,7 +1,16 @@
+/* ═══════════════════════════════════════════════════════
+   public.css  —  UPDATED to match SVG design (June 2026)
+   Changes:
+   • Product card: flex-column layout; tall portrait image ratio (136 %);
+     OOS overlay to #B66878 @ 75 %; replaced .btn-order with two-button
+     action bar (.product-actions) matching gold/pink split in SVG.
+   • Added .product-card-inner, .product-actions, .btn-order-ig,
+     .btn-social-icon; updated desktop responsive overrides.
+   ═══════════════════════════════════════════════════════ */
 /* --- PERPETUA --- */
 @font-face {
     font-family: 'Perpetua';
-    src: url('../font/perpetua/Perpetua-Font/Perpetua-Regular.woff2') format('woff2');
+    src: url('../font/perpetua/Perpetua-Regular.woff2') format('woff2');
     font-weight: 400; /* Normal */
     font-style: normal;
     font-display: swap;
@@ -9,7 +18,7 @@
 
 @font-face {
     font-family: 'Perpetua';
-    src: url('../font/perpetua/Perpetua-Font/Perpetua-Italic.woff2') format('woff2');
+    src: url('../font/perpetua/Perpetua-Italic.woff2') format('woff2');
     font-weight: 400; /* Normal */
     font-style: italic;
     font-display: swap;
@@ -17,7 +26,7 @@
 
 @font-face {
     font-family: 'Perpetua';
-    src: url('../font/perpetua/Perpetua-Font/Perpetua-Bold.woff2') format('woff2');
+    src: url('../font/perpetua/Perpetua-Bold.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: normal;
     font-display: swap;
@@ -25,7 +34,7 @@
 
 @font-face {
     font-family: 'Perpetua';
-    src: url('../font/perpetua/Perpetua-Font/Perpetua-Bold-Italic.woff2') format('woff2');
+    src: url('../font/perpetua/Perpetua-Bold-Italic.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: italic; /* Diperbaiki dari normal ke italic */
     font-display: swap;
@@ -34,7 +43,7 @@
 /* --- URBANIST --- */
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Thin.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Thin.woff2') format('woff2');
     font-weight: 100; /* Thin */
     font-style: normal;
     font-display: swap;
@@ -42,7 +51,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-ExtraLight.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-ExtraLight.woff2') format('woff2');
     font-weight: 200; /* Extra Light */
     font-style: normal;
     font-display: swap;
@@ -50,7 +59,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Light.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Light.woff2') format('woff2');
     font-weight: 300; /* Light */
     font-style: normal;
     font-display: swap;
@@ -58,7 +67,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Regular.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Regular.woff2') format('woff2');
     font-weight: 400; /* Regular */
     font-style: normal;
     font-display: swap;
@@ -66,7 +75,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Medium.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Medium.woff2') format('woff2');
     font-weight: 500; /* Medium */
     font-style: normal;
     font-display: swap;
@@ -74,7 +83,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-SemiBold.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-SemiBold.woff2') format('woff2');
     font-weight: 600; /* Semi Bold */
     font-style: normal;
     font-display: swap;
@@ -82,7 +91,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Bold.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Bold.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: normal;
     font-display: swap;
@@ -90,7 +99,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-ExtraBold.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-ExtraBold.woff2') format('woff2');
     font-weight: 800; /* Extra Bold */
     font-style: normal;
     font-display: swap;
@@ -98,7 +107,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Black.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Black.woff2') format('woff2');
     font-weight: 900; /* Black */
     font-style: normal;
     font-display: swap;
@@ -107,7 +116,7 @@
 /* --- URBANIST ITALICS --- */
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-ThinItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-ThinItalic.woff2') format('woff2');
     font-weight: 100;
     font-style: italic;
     font-display: swap;
@@ -115,7 +124,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-ExtraLightItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-ExtraLightItalic.woff2') format('woff2');
     font-weight: 200;
     font-style: italic;
     font-display: swap;
@@ -123,7 +132,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-LightItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-LightItalic.woff2') format('woff2');
     font-weight: 300;
     font-style: italic;
     font-display: swap;
@@ -131,7 +140,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-Italic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-Italic.woff2') format('woff2');
     font-weight: 400;
     font-style: italic;
     font-display: swap;
@@ -139,7 +148,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-MediumItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-MediumItalic.woff2') format('woff2');
     font-weight: 500;
     font-style: italic;
     font-display: swap;
@@ -147,7 +156,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-SemiBoldItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-SemiBoldItalic.woff2') format('woff2');
     font-weight: 600;
     font-style: italic;
     font-display: swap;
@@ -155,7 +164,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-BoldItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-BoldItalic.woff2') format('woff2');
     font-weight: 700;
     font-style: italic;
     font-display: swap;
@@ -163,7 +172,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-ExtraBoldItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-ExtraBoldItalic.woff2') format('woff2');
     font-weight: 800;
     font-style: italic;
     font-display: swap;
@@ -171,7 +180,7 @@
 
 @font-face {
     font-family: 'Urbanist';
-    src: url('../font/urbanist/otf/Urbanist-BlackItalic.woff2') format('woff2');
+    src: url('../font/urbanist/Urbanist-BlackItalic.woff2') format('woff2');
     font-weight: 900;
     font-style: italic;
     font-display: swap;
@@ -180,7 +189,9 @@
 /* ── CSS Variables Setup ───────────────────────────────── */
 :root {
     --ff-display: 'Perpetua', serif;
+    --ff-elegant: 'Perpetua', serif;
     --ff-body: 'Urbanist', sans-serif;
+    --max-w: 1240px;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -200,6 +211,7 @@
 
     /* Neutral Scale (Black, White, Grays) */
     --asari-neutral-0:   #FFFFFF;
+    --asari-neutral-25:  #F2F2F7;
     --asari-neutral-50:  #F9F7F3;
     --asari-neutral-200: #E8E0D0;
     --asari-neutral-500: #888888;
@@ -217,7 +229,8 @@
     --pink-light: var(--asari-pink-300);
 
     /* Backgrounds */
-    --bg:         var(--asari-neutral-0);
+    --bg:         var(--asari-neutral-25);
+    --bg-header:  #F2F2F2;
     --bg-soft:    var(--asari-neutral-50);
 
     /* Typography */
@@ -253,9 +266,25 @@ body {
 img  { max-width: 100%; height: auto; display: block; }
 a    { text-decoration: none; color: inherit; }
 ul   { list-style: none; }
+main { display: block; }
 
 .container { max-width: 480px; margin: 0 auto; padding: 0 16px; }
 .sr-only   { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 400;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+.skip-link:focus {
+  top: 12px;
+}
 
 
 /* ════════════════════════════════════════════════════════
@@ -266,7 +295,7 @@ ul   { list-style: none; }
 /* ── Shell ── */
 .navbar {
   position: sticky; top: 0; z-index: 100;
-  background: #FFFFFF;
+  background: var(--bg-header);
   box-shadow: 0 1px 0 var(--border);
   transition: box-shadow 0.3s ease;
 }
@@ -500,14 +529,43 @@ ul   { list-style: none; }
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
 }
 
+/*
+ * CHANGES – Product Card (SVG design match):
+ * - .product-card      : added flex column layout so action bar sits at bottom
+ * - .product-card-inner: new wrapper <a> for image + info click area
+ * - .product-img-wrap  : padding-top changed 100% → 136.27% (SVG ratio 402/295)
+ * - .out-of-stock-overlay: colour changed to #B66878 @ 75% opacity (from SVG)
+ * - .product-info      : margin-bottom on price removed (btn gone from info)
+ * - .product-actions   : NEW – two 50/50 action buttons bar at bottom of card
+ * - .btn-order-wa (card): NEW scoped variant – gold #D9A84E per SVG
+ * - .btn-order-ig      : NEW – pink  #B66878 per SVG
+ * - .btn-social-icon   : NEW – inline SVG icon sizing inside action buttons
+ * - .btn-order         : kept for backward-compat (used by product detail page)
+ */
+
+/* ── Card shell ── */
 .product-card {
-  background: var(--bg); border-radius: var(--radius-sm);
-  overflow: hidden; box-shadow: var(--shadow);
+  background: #fff;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 .product-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
 
-.product-img-wrap { position: relative; padding-top: 100%; overflow: hidden; }
+/* ── Inner clickable zone (image + info) ── */
+.product-card-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── Image area: tall portrait ratio matching SVG (295 × 402 ≈ 136 %) ── */
+.product-img-wrap { position: relative; padding-top: 136.27%; overflow: hidden; }
 .product-img-wrap img {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
@@ -521,19 +579,69 @@ ul   { list-style: none; }
   display: flex; align-items: center; justify-content: center;
   color: var(--gold-dark); font-size: 2rem;
 }
+
+/* OOS overlay: #B66878 @ 75% opacity (matches SVG design exactly) */
 .out-of-stock-overlay {
-  position: absolute; inset: 0; background: rgba(80,40,40,0.60);
+  position: absolute; inset: 0;
+  background: rgba(182, 104, 120, 0.75);
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-family: var(--ff-display); font-size: 1rem; font-style: italic;
+  letter-spacing: 0.04em;
 }
 
-.product-info { padding: 10px; }
+/* ── Product name + price ── */
+.product-info { padding: 8px 10px 6px; }
 .product-name {
   font-family: var(--ff-display); font-size: 0.88rem; font-weight: 500;
-  margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.product-price { font-family: var(--ff-body); font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+.product-price { font-family: var(--ff-body); font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0; }
 
+/* ── Action bar: two 50/50 order buttons ── */
+.product-actions {
+  display: flex;
+  width: 100%;
+}
+
+/* WA button (gold, left) – #D9A84E matches SVG */
+.product-actions .btn-order-wa {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: #D9A84E;
+  color: #fff;
+  padding: 7px 4px;
+  font-family: var(--ff-elegant); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: background 0.2s;
+  border: none;
+  min-height: 30px;
+}
+.product-actions .btn-order-wa:hover { background: #c4913b; }
+
+/* IG button (pink, right) – #B66878 matches SVG */
+.btn-order-ig {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: #B66878;
+  color: #fff;
+  padding: 7px 4px;
+  font-family: var(--ff-elegant); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: background 0.2s;
+  border: none;
+  min-height: 30px;
+}
+.btn-order-ig:hover { background: #9e5467; }
+
+/* Inline social icon inside action buttons */
+.btn-social-icon {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+}
+
+/* Legacy .btn-order – kept for product detail page compat */
 .btn-order {
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--gold); color: #fff; border: none; cursor: pointer;
@@ -569,6 +677,8 @@ ul   { list-style: none; }
   font-family: var(--ff-display); font-size: 2.2rem; font-weight: 600;
   color: #fff; text-align: center;
 }
+.category-hero--compact { height: 160px; }
+.category-hero--compact h1 { font-size: 1.8rem; }
 .category-list { padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
 .category-card {
   position: relative; border-radius: var(--radius); overflow: hidden;
@@ -599,6 +709,13 @@ ul   { list-style: none; }
 .results-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
 .results-header .query { color: var(--gold); font-weight: 600; }
 .results-header .count { color: var(--text-muted); }
+.search-page-toolbar {
+  padding: 12px 16px;
+  background: #f9f7f3;
+  border-bottom: 1px solid #E8E0D0;
+}
+.search-bar-wrap--flat { padding: 0; }
+.catalog-grid-wrap { padding: 0 16px 32px; }
 
 
 /* ════════════════════════════════════════════════════════
@@ -630,6 +747,24 @@ ul   { list-style: none; }
   transition: background 0.2s; text-decoration: none;
 }
 .btn-order-wa:hover { background: var(--gold-dark); }
+.product-detail-img-placeholder {
+  height: 300px;
+  background: linear-gradient(135deg,#f0e6cc,#e8d8b0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+}
+.product-detail-cta { margin-top: 24px; }
+.product-detail-oos-note {
+  margin-top: 24px;
+  text-align: center;
+  padding: 14px;
+  background: #f8d7da;
+  border-radius: 8px;
+  color: #721c24;
+  font-weight: 700;
+}
 
 
 /* ════════════════════════════════════════════════════════
@@ -742,6 +877,16 @@ ul   { list-style: none; }
 .alert-error   { background: #f8d7da; color: #721c24; }
 .alert-warning { background: #fff3cd; color: #856404; }
 .alert-info    { background: #d1ecf1; color: #0c5460; }
+.public-empty-state {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+}
+.public-empty-state--grid { grid-column: 1 / -1; }
+.public-empty-link {
+  color: var(--text);
+  text-decoration: underline;
+}
 
 
 /* ════════════════════════════════════════════════════════
@@ -812,7 +957,17 @@ ul   { list-style: none; }
   /* ── Product card info ── */
   .product-name  { font-size: 0.95rem; }
   .product-price { font-size: 0.85rem; }
-  .product-info  { padding: 14px; }
+  .product-info  { padding: 10px 14px 6px; }
+
+  /* ── Product card action buttons (desktop) ── */
+  .product-actions .btn-order-wa,
+  .btn-order-ig {
+    font-size: 0.8rem;
+    padding: 8px 6px;
+    gap: 7px;
+    min-height: 36px;
+  }
+  .btn-social-icon { width: 16px; height: 16px; }
 
   /* ── Category page ── */
   .category-hero { height: 360px; }
@@ -866,7 +1021,7 @@ ul   { list-style: none; }
   font-size: 1.6rem;
   font-weight: 500;
   text-align: center;
-  color: #000000;                /* ← ganti warna judul */
+  color: var(--text);                /* ← ganti warna judul */
   margin-bottom: 24px;
   letter-spacing: 0.01em;
 }
@@ -947,7 +1102,7 @@ ul   { list-style: none; }
   font-family: var(--ff-display);
   font-size: 0.9rem;
   font-weight: 500;
-  color: #000000;                /* ← ganti warna nama produk */
+  color: var(--text);                /* ← ganti warna nama produk */
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -956,7 +1111,7 @@ ul   { list-style: none; }
 .dash-card-price {
   font-family: var(--ff-body);
   font-size: 0.78rem;
-  color: #000000;                /* ← ganti warna harga */
+  color: var(--text-muted);                /* ← ganti warna harga */
   margin-bottom: 8px;
 }
 
@@ -966,7 +1121,7 @@ ul   { list-style: none; }
   align-items: center;
   gap: 5px;
   padding: 5px 12px;
-  background: #000000;           /* ← ganti background tombol Order */
+  background: var(--gold);           /* ← ganti background tombol Order */
   color: #ffffff;                /* ← ganti warna teks tombol Order */
   border-radius: 20px;
   font-family: var(--ff-elegant);
@@ -986,8 +1141,8 @@ ul   { list-style: none; }
 }
 .dash-btn-view-all {
   display: inline-block;
-  border: 1.5px solid #000000;   /* ← ganti warna border */
-  color: #000000;                /* ← ganti warna teks */
+  border: 1.5px solid var(--gold);   /* ← ganti warna border */
+  color: var(--gold);                /* ← ganti warna teks */
   background: transparent;
   padding: 9px 32px;
   border-radius: 20px;
@@ -999,7 +1154,7 @@ ul   { list-style: none; }
   transition: background 0.2s ease, color 0.2s ease;
 }
 .dash-btn-view-all:hover {
-  background: #000000;           /* ← ganti warna hover background */
+  background: var(--gold);           /* ← ganti warna hover background */
   color: #ffffff;
 }
 
@@ -1029,7 +1184,7 @@ ul   { list-style: none; }
   font-family: var(--ff-display);
   font-size: 1.8rem;
   font-weight: 600;
-  color: #000000;                /* ← ganti warna judul about */
+  color: var(--text);                /* ← ganti warna judul about */
   line-height: 1.2;
   text-align: center;
 }
@@ -1042,7 +1197,7 @@ ul   { list-style: none; }
   font-family: var(--ff-body);
   font-size: 0.88rem;
   line-height: 1.85;
-  color: #000000;                /* ← ganti warna teks about */
+  color: var(--text);                /* ← ganti warna teks about */
   text-align: justify;
 }
 .dash-about-text p {

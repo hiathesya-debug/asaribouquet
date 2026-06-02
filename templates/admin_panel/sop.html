@@ -1,7 +1,7 @@
 {% extends 'admin_panel/base_admin.html' %}
 {% load static %}
 
-{% block title %}SOP – Asari Florist Admin{% endblock %}
+{% block title %}SOP - Asari Florist Admin{% endblock %}
 {% block topbar_title %}Standard Operating Procedure{% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
     <a href="{% url 'sop_section_add' %}" class="btn-add-dashed">
       + Tambah Seksi
     </a>
-    <a href="{% url 'sop_item_add' %}" class="btn-add-dashed" style="margin-left:12px;">
+    <a href="{% url 'sop_item_add' %}" class="btn-add-dashed btn-add-offset">
       + Tambah Item
     </a>
   </div>
@@ -40,8 +40,9 @@
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                   </svg>
                 </a>
-                <button class="btn-sop-delete btn-admin-delete"
+                <button type="button" class="btn-sop-delete btn-admin-delete"
                         data-delete-url="{% url 'sop_item_delete' item.pk %}"
+                        data-delete-name="item SOP"
                         title="Hapus">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"/>
@@ -64,3 +65,4 @@
   </div>
 </div>
 {% endblock %}
+

@@ -1,7 +1,7 @@
 {% extends 'public/base.html' %}
 {% load static store_filters %}
 
-{% block title %}Asari Bouquet & Flower — Home{% endblock %}
+{% block title %}Asari Bouquet & Flower - Home{% endblock %}
 
 {% block content %}
 
@@ -22,7 +22,7 @@
 </section>
 
 <!-- ══════════════════════════════════════════════════
-     PRODUCT SECTIONS — satu section per kategori
+     PRODUCT SECTIONS - satu section per kategori
      ══════════════════════════════════════════════════ -->
 {% for section in cat_sections %}
 <section class="dash-section">
@@ -37,7 +37,7 @@
         {% if product.image %}
           <img src="{{ product.image.url }}" alt="{{ product.name }}">
         {% else %}
-          <div class="dash-card-img-placeholder">🌸</div>
+          <div class="dash-card-img-placeholder" aria-hidden="true">&#127800;</div>
         {% endif %}
 
         <!-- Overlay Out of Stock -->
@@ -76,9 +76,9 @@
 </section>
 {% empty %}
 <section class="dash-section">
-  <p style="text-align:center;padding:48px 0;color:#888;">
+  <p class="public-empty-state">
     Belum ada produk.
-    <a href="{% url 'admin_login' %}" style="color:#000;">Admin login</a>
+    <a href="{% url 'admin_login' %}" class="public-empty-link">Admin login</a>
     untuk menambahkan.
   </p>
 </section>
@@ -92,7 +92,7 @@
 
     <!-- Logo + Brand Name -->
     <div class="dash-about-brand">
-      <img src="{% static 'images/logo.png' %}" alt="Asari Bouquet" class="dash-about-logo">
+      <img src="{% static 'icon/logo.png' %}" alt="Asari Bouquet" class="dash-about-logo">
       <h2 class="dash-about-title">
         Asari<br>
         <span class="dash-about-subtitle">Bouquet &amp; Flower</span>
@@ -117,3 +117,4 @@
 </section>
 
 {% endblock %}
+

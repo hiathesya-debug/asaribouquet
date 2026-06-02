@@ -1,7 +1,7 @@
 {% extends 'public/base.html' %}
 {% load static %}
 
-{% block title %}Terms and Condition – Asari Bouquet & Flower{% endblock %}
+{% block title %}Terms and Condition - Asari Bouquet & Flower{% endblock %}
 
 {% block content %}
 <div class="terms-page">
@@ -11,11 +11,11 @@
     <div class="terms-accordion-list">
       {% for section in sections %}
         <div class="terms-accordion {% if forloop.first %}open{% endif %}" data-accordion>
-          <button class="terms-accordion-header" type="button">
+          <button class="terms-accordion-header" type="button" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
             <span class="terms-section-title">{{ section.title }}</span>
             <span class="terms-chevron">{% if forloop.first %}&#8743;{% else %}&#8744;{% endif %}</span>
           </button>
-          <div class="terms-accordion-body" {% if not forloop.first %}style="display:none"{% endif %}>
+          <div class="terms-accordion-body" {% if not forloop.first %}hidden{% endif %}>
             {% for item in section.items.all %}
               <div class="terms-item">
                 {% if item.subtitle %}
@@ -26,7 +26,7 @@
             {% empty %}
               <p class="terms-empty">Belum ada konten untuk bagian ini.</p>
             {% endfor %}
-            <button class="terms-show-toggle" type="button" data-submenu-toggle>Show Less &#8743;</button>
+            <button class="terms-show-toggle" type="button" data-terms-collapse>Show Less &#8743;</button>
           </div>
           {% if not forloop.first %}
             <button class="terms-view-btn" type="button" data-view-btn>View &#8744;</button>
@@ -42,46 +42,3 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Accordion toggle
-  document.querySelectorAll('[data-accordion]').forEach(function (acc) {
-    const header = acc.querySelector('.terms-accordion-header');
-    const body = acc.querySelector('.terms-accordion-body');
-    const viewBtn = acc.querySelector('[data-view-btn]');
-    const chevron = header ? header.querySelector('.terms-chevron') : null;
-
-    function openAcc() {
-      body.style.display = '';
-      acc.classList.add('open');
-      if (chevron) chevron.innerHTML = '&#8743;';
-      if (viewBtn) viewBtn.style.display = 'none';
-    }
-
-    function closeAcc() {
-      body.style.display = 'none';
-      acc.classList.remove('open');
-      if (chevron) chevron.innerHTML = '&#8744;';
-      if (viewBtn) viewBtn.style.display = '';
-    }
-
-    if (header) {
-      header.addEventListener('click', function () {
-        acc.classList.contains('open') ? closeAcc() : openAcc();
-      });
-    }
-
-    if (viewBtn) {
-      viewBtn.addEventListener('click', openAcc);
-    }
-
-    // Show Less inside body
-    const showLess = body ? body.querySelector('[data-submenu-toggle]') : null;
-    if (showLess) {
-      showLess.addEventListener('click', closeAcc);
-    }
-  });
-});
-</script>
-{% endblock %}

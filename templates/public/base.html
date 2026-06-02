@@ -12,6 +12,7 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+<a class="skip-link" href="#main-content">Lewati ke konten utama</a>
 
 <!-- ════════════════════════════════════════════════════════
      HEADER
@@ -127,7 +128,7 @@
       <div class="menu-nav-item"><a href="{% url 'home' %}">Home</a></div>
 
       <div class="menu-nav-item">
-        <button class="nav-main-link" data-submenu-toggle="submenuProduct">
+        <button class="nav-main-link" data-submenu-toggle="submenuProduct" aria-controls="submenuProduct" aria-expanded="false">
           Our Products <span class="submenu-icon">+</span>
         </button>
         <div class="menu-sub" id="submenuProduct">
@@ -154,7 +155,9 @@
 {% endif %}
 
 <!-- ─── Main content ─── -->
-{% block content %}{% endblock %}
+<main id="main-content">
+  {% block content %}{% endblock %}
+</main>
 
 <!-- ─── Footer ─── -->
 <footer class="footer">
@@ -182,15 +185,15 @@
 <div class="footer-col">
   <h4>Contact Us</h4>
   <p class="footer-contact-row">
-    <img src="{% static 'icon/ICON=INSTAGRAM.svg' %}" alt="Instagram" width="14" height="14">
+    <img src="{% static 'icon/ICON=INSTAGRAM.svg' %}" alt="" aria-hidden="true" width="14" height="14">
     {{ site_settings.instagram_handle }}
   </p>
   <p class="footer-contact-row">
-    <img src="{% static 'icon/ICON=TIKTOK.svg' %}" alt="TikTok" width="14" height="14">
+    <img src="{% static 'icon/ICON=TIKTOK.svg' %}" alt="" aria-hidden="true" width="14" height="14">
     {{ site_settings.tiktok_handle }}
   </p>
   <p class="footer-contact-row">
-    <img src="{% static 'icon/ICON=WHATSAPP.svg' %}" alt="WhatsApp" width="14" height="14">
+    <img src="{% static 'icon/ICON=WHATSAPP.svg' %}" alt="" aria-hidden="true" width="14" height="14">
     +{{ site_settings.whatsapp_number }}
   </p>
 </div>
@@ -201,3 +204,4 @@
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>
+

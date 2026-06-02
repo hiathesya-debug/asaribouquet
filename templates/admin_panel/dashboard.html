@@ -2,26 +2,43 @@
 {% load static %}
 {% load store_filters %}
 
-{% block title %}Dashboard – Asari Florist Admin{% endblock %}
+{% block title %}Dashboard - Asari Florist Admin{% endblock %}
 {% block topbar_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-header-row" style="align-items: flex-end;">
+{#
+  CHANGES vs original (dashboard.html):
+  ─────────────────────────────────────────
+  1. Period selects: added aria-label attributes for accessibility; structure
+     unchanged (auto-submit on change is already handled by admin.js).
+  2. chart-card-header: structure unchanged — the CSS fix in admin.css now
+     gives it display:flex / space-between so title sits left, subtitle right.
+  3. Reviews section: added <div class="reviews-section-header"> with
+     <h2 class="reviews-section-title"> heading matching the "Recent Reviews"
+     label visible in the SVG dashboard designs.
+  ─────────────────────────────────────────
+#}
+<div class="dashboard-page">
+
+  <!-- Page header: title left, period selector right -->
+  <div class="dashboard-header-row dashboard-header-row--end">
     <div>
       <h1 class="admin-page-title">Dashboard</h1>
-      <div class="dashboard-gradient-line" style="margin-bottom: 0;"></div>
+      <div class="dashboard-gradient-line dashboard-gradient-line--flush"></div>
     </div>
-    
-    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-bottom: 8px;">
-      <span class="dashboard-period-label" style="padding-top:0;">Period: <strong>{{ month_name }}</strong></span>
-      
-      <form method="GET" class="period-form" style="margin-bottom: 0;">
-        <select name="month" class="period-select" onchange="this.form.submit()">
+
+    <div class="dashboard-period-panel">
+      <span class="dashboard-period-label dashboard-period-label--flush">
+        Period: <strong>{{ month_name }}</strong>
+      </span>
+      <!-- Selects auto-submit on change via admin.js (.period-form .period-select) -->
+      <form method="GET" class="period-form period-form--flush" aria-label="Select reporting period">
+        <select name="month" class="period-select" aria-label="Month">
           {% for num, name in all_months %}
             <option value="{{ num }}" {% if num == period_month %}selected{% endif %}>{{ name }}</option>
           {% endfor %}
         </select>
-        <select name="year" class="period-select" onchange="this.form.submit()">
+        <select name="year" class="period-select" aria-label="Year">
           {% for yr in "2024 2025 2026"|split:" " %}
             <option value="{{ yr }}" {% if yr|add:"0" == period_year %}selected{% endif %}>{{ yr }}</option>
           {% endfor %}
@@ -30,9 +47,10 @@
     </div>
   </div>
 
-  <!-- Stats Cards -->
+  <!-- Stats grid: 2-col desktop, 1-col on mobile (breakpoint 860px in admin.css) -->
   <div class="stats-grid">
-    <!-- Followers Card -->
+
+    <!-- Followers card -->
     <div class="stat-card">
       <p class="stat-label">Total Followers</p>
       <p class="stat-value">{{ social_stats.total_followers|intcomma }}</p>
@@ -45,13 +63,16 @@
       {% endwith %}
       <form method="POST" action="{% url 'update_followers' %}" class="update-followers-form">
         {% csrf_token %}
-        <input type="number" name="total_followers" placeholder="Update followers"
-               class="followers-input" value="{{ social_stats.total_followers }}">
+        <input type="number"
+               name="total_followers"
+               placeholder="Update followers"
+               class="followers-input"
+               value="{{ social_stats.total_followers }}">
         <button type="submit" class="followers-save-btn">Simpan</button>
       </form>
     </div>
 
-    <!-- Orders Card -->
+    <!-- Orders card -->
     <div class="stat-card">
       <p class="stat-label">Total Orders</p>
       <p class="stat-value">{{ total_orders }}</p>
@@ -61,26 +82,39 @@
         <span class="stat-badge badge-down">{{ order_change_pct|abs_val }}% &#8595;</span>
       {% endif %}
     </div>
+
   </div>
 
-  <!-- Sales Chart -->
+  <!-- Sales chart -->
   <div class="chart-card">
+    <!-- .chart-card-header now has display:flex / space-between in admin.css -->
     <div class="chart-card-header">
       <h2 class="chart-title">Sales Statistics</h2>
       <p class="chart-subtitle" id="chartPeriodLabel">{{ month_name }}</p>
     </div>
     <div class="chart-wrapper">
-      <canvas id="salesChart"></canvas>
+      <canvas id="salesChart"
+              data-sales-url="{% url 'get_sales_data' %}"
+              data-month="{{ period_month }}"
+              data-year="{{ period_year }}"></canvas>
     </div>
   </div>
 
   <!-- Recent Reviews -->
   <div class="reviews-section">
+
+    <!-- Section heading matching SVG label above review cards -->
+    <div class="reviews-section-header">
+      <h2 class="reviews-section-title">Recent Reviews</h2>
+    </div>
+
     {% for review in recent_reviews %}
       <div class="review-card">
         <div class="review-avatar-wrap">
           {% if review.avatar and not review.is_anonymous %}
-            <img src="{{ review.avatar.url }}" alt="{{ review.display_name }}" class="review-avatar">
+            <img src="{{ review.avatar.url }}"
+                 alt="{{ review.display_name }}"
+                 class="review-avatar">
           {% else %}
             <div class="review-avatar-placeholder">{{ review.display_name|first|upper }}</div>
           {% endif %}
@@ -96,6 +130,7 @@
     {% endfor %}
 
     <a href="{% url 'all_reviews' %}" class="btn-view-all-reviews">VIEW ALL REVIEWS</a>
+
   </div>
 
 </div>
@@ -103,85 +138,4 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-(function () {
-  var periodMonth = {{ period_month }};
-  var periodYear = {{ period_year }};
-  var salesUrl = '{% url "get_sales_data" %}';
-
-  var ctx = document.getElementById('salesChart');
-  if (!ctx) return;
-
-  var chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Pendapatan',
-        data: [],
-        borderColor: '#C9A456',
-        backgroundColor: 'rgba(201,164,86,0.18)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.45,
-        pointRadius: 2,
-        pointHoverRadius: 5,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { family: 'Nunito', size: 11 }, color: '#999' }
-        },
-        y: {
-          grid: { color: 'rgba(0,0,0,0.05)' },
-          ticks: {
-            font: { family: 'Nunito', size: 11 }, color: '#999',
-            callback: function(v) {
-              if (v >= 1000000) return (v/1000000).toFixed(0) + 'jt';
-              if (v >= 1000) return (v/1000).toFixed(0) + 'k';
-              return v;
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              return ' Rp ' + ctx.parsed.y.toLocaleString('id-ID');
-            }
-          }
-        }
-      }
-    }
-  });
-
-  function loadChart(month, year) {
-    fetch(salesUrl + '?month=' + month + '&year=' + year)
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        chart.data.labels = d.labels;
-        chart.data.datasets[0].data = d.data;
-        chart.update();
-      });
-  }
-
-  loadChart(periodMonth, periodYear);
-
-  // If period selects change, reload chart
-  document.querySelectorAll('.period-select').forEach(function(sel) {
-    sel.addEventListener('change', function() {
-      var m = document.querySelector('[name="month"]').value;
-      var y = document.querySelector('[name="year"]').value;
-      loadChart(m, y);
-    });
-  });
-})();
-</script>
 {% endblock %}

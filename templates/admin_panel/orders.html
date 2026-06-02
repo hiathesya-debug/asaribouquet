@@ -2,7 +2,7 @@
 {% load static %}
 {% load store_filters %}
 
-{% block title %}Orders – Asari Florist Admin{% endblock %}
+{% block title %}Orders - Asari Florist Admin{% endblock %}
 {% block topbar_title %}Orders{% endblock %}
 
 {% block content %}
@@ -53,7 +53,7 @@
             {% if order.product and order.product.image %}
               <img src="{{ order.product.image.url }}" alt="{{ order.product_name }}" class="order-img">
             {% else %}
-              <div class="order-img-placeholder">🌸</div>
+              <div class="order-img-placeholder">&#127800;</div>
             {% endif %}
           </div>
 
@@ -64,7 +64,7 @@
             <div class="order-notes-wrap">
               <p class="order-notes-label">Notes:</p>
               <p class="order-notes">
-                {% if order.request_notes %}{{ order.request_notes }}{% else %}–{% endif %}
+                {% if order.request_notes %}{{ order.request_notes }}{% else %}-{% endif %}
               </p>
             </div>
             {% if order.greeting_card and order.greeting_card != '-' %}
@@ -79,57 +79,50 @@
               <span class="order-price" id="priceDisplay{{ order.pk }}">
                 Rp{{ order.total_price|rupiah }}
               </span>
-              <button type="button" class="btn-edit-price"
-                      onclick="togglePriceEdit({{ order.pk }})"
-                      id="editPriceBtn{{ order.pk }}">
+              <button type="button" class="btn-edit-price" data-price-toggle="{{ order.pk }}" id="editPriceBtn{{ order.pk }}" aria-label="Edit harga {{ order.product_name }}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                   <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
               </button>
-              <form class="price-edit-form" id="priceForm{{ order.pk }}"
-                    style="display:none"
-                    onsubmit="savePriceAjax(event, {{ order.pk }})">
+              <form class="price-edit-form is-hidden" id="priceForm{{ order.pk }}" data-price-form="{{ order.pk }}">
                 {% csrf_token %}
                 <input type="number" name="price" value="{{ order.price }}"
                        class="price-input" step="1000" min="0">
-                <button type="submit" class="btn-save-price">✓</button>
-                <button type="button" class="btn-cancel-price"
-                        onclick="togglePriceEdit({{ order.pk }})">✕</button>
+                <button type="submit" class="btn-save-price" aria-label="Simpan harga">&#10003;</button>
+                <button type="button" class="btn-cancel-price" data-price-cancel="{{ order.pk }}" aria-label="Batal ubah harga">&#10005;</button>
               </form>
             </div>
 
             <!-- Pickup info -->
             <p class="order-pickup-info">
-              📅 {{ order.pickup_date|date:"D, d M Y" }} — {{ order.pickup_time|time:"H.i" }} WIB
+              Date: {{ order.pickup_date|date:"D, d M Y" }} - {{ order.pickup_time|time:"H.i" }} WIB
               | {{ order.get_delivery_method_display }}
             </p>
             {% if order.delivery_address %}
-              <p class="order-address">📍 {{ order.delivery_address }}</p>
+              <p class="order-address">Address: {{ order.delivery_address }}</p>
             {% endif %}
 
             <!-- Actions -->
             {% if status_filter == 'in_progress' %}
               <div class="order-actions">
-                <button type="button" class="btn-order-done"
-                        onclick="updateOrderStatus({{ order.pk }}, 'done')">Done</button>
-                <button type="button" class="btn-order-cancel"
-                        onclick="updateOrderStatus({{ order.pk }}, 'cancelled')">Cancel</button>
+                <button type="button" class="btn-order-done" data-order-action="status" data-order-id="{{ order.pk }}" data-order-status="done">Done</button>
+                <button type="button" class="btn-order-cancel" data-order-action="status" data-order-id="{{ order.pk }}" data-order-status="cancelled">Cancel</button>
                 <a href="{% url 'order_edit' order.pk %}" class="btn-order-edit">Edit</a>
               </div>
             {% elif status_filter == 'done' %}
               <div class="order-actions">
-                <button type="button" class="btn-order-revert"
-                        onclick="updateOrderStatus({{ order.pk }}, 'in_progress')">In Progress</button>
-                <button class="btn-admin-delete"
-                        data-delete-url="{% url 'order_delete' order.pk %}">Hapus</button>
+                <button type="button" class="btn-order-revert" data-order-action="status" data-order-id="{{ order.pk }}" data-order-status="in_progress">In Progress</button>
+                <button type="button" class="btn-admin-delete"
+                        data-delete-url="{% url 'order_delete' order.pk %}"
+                        data-delete-name="order {{ order.product_name }}">Hapus</button>
               </div>
             {% else %}
               <div class="order-actions">
-                <button type="button" class="btn-order-revert"
-                        onclick="updateOrderStatus({{ order.pk }}, 'in_progress')">Kembalikan</button>
-                <button class="btn-admin-delete"
-                        data-delete-url="{% url 'order_delete' order.pk %}">Hapus</button>
+                <button type="button" class="btn-order-revert" data-order-action="status" data-order-id="{{ order.pk }}" data-order-status="in_progress">Kembalikan</button>
+                <button type="button" class="btn-admin-delete"
+                        data-delete-url="{% url 'order_delete' order.pk %}"
+                        data-delete-name="order {{ order.product_name }}">Hapus</button>
               </div>
             {% endif %}
           </div>
@@ -144,66 +137,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-var csrfToken = '{{ csrf_token }}';
 
-function updateOrderStatus(orderId, newStatus) {
-  fetch('/admin-panel/orders/' + orderId + '/status/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrfToken,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-    body: 'status=' + encodeURIComponent(newStatus),
-  })
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    if (data.success) {
-      var card = document.getElementById('orderCard' + orderId);
-      if (card) {
-        card.style.opacity = '0';
-        card.style.transform = 'translateX(20px)';
-        card.style.transition = 'all 0.3s ease';
-        setTimeout(function () { card.remove(); }, 300);
-      }
-    }
-  })
-  .catch(function (e) { console.error(e); });
-}
-
-function togglePriceEdit(orderId) {
-  var display = document.getElementById('priceDisplay' + orderId);
-  var form = document.getElementById('priceForm' + orderId);
-  if (!display || !form) return;
-  var isHidden = form.style.display === 'none';
-  display.style.display = isHidden ? 'none' : '';
-  form.style.display = isHidden ? 'flex' : 'none';
-}
-
-function savePriceAjax(e, orderId) {
-  e.preventDefault();
-  var form = document.getElementById('priceForm' + orderId);
-  var priceVal = form.querySelector('[name="price"]').value;
-  fetch('/admin-panel/orders/' + orderId + '/price/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrfToken,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-    body: 'price=' + encodeURIComponent(priceVal),
-  })
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    if (data.success) {
-      var display = document.getElementById('priceDisplay' + orderId);
-      if (display) display.textContent = 'Rp' + parseFloat(priceVal).toLocaleString('id-ID');
-      togglePriceEdit(orderId);
-    }
-  })
-  .catch(function (e) { console.error(e); });
-}
-</script>
-{% endblock %}
